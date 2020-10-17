@@ -1,0 +1,15 @@
+ERROR,Woops. Something went wrong.
+CONFUSED,It seems that I can't understand what you're saying. Please try another way to say it.
+WELCOME,Welcome {name}! This is the bot built by Victor Garcia Rubio for the With Madrid Full Stack Developer position. Write /play to start
+GUESS_A_NUMBER,Guess a number between 1 and 100 (inclusive)
+WRONG,Wrong!
+WRONG,Try again!
+WRONG,Well... No!
+LOWER,Try something lower
+HIGHER,Try something higher
+CONGRATULATIONS,Congrats!
+CONGRATULATIONS,Well done!
+CONGRATULATIONS,Awesome!
+DO_YOU_WANT_AGAIN, If you want to play again just write /play !
+PLAY_AGAIN,Play again
+TEST,The number is {x:number}
