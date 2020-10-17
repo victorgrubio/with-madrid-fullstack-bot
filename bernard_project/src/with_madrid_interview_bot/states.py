@@ -16,8 +16,8 @@ from bernard.platforms.telegram import (
     layers as tgr
 )
 
-from .store import (
-    cs, VIDEO_NAME, BASE_VIDEO_API_URL
+from bernard.conf import (
+    settings
 )
 
 import time
@@ -87,7 +87,7 @@ class S002xFirstLaunchingFrame(WithMadridInterviewBotState):
     @cs.inject()
     async def handle(self, context) -> None:
         
-        bisector = FrameXBisector(VIDEO_NAME)
+        bisector = FrameXBisector(settings.VIDEO_NAME)
         limit_left = 0
         limit_right = bisector.count
         current_frame = int((limit_left + limit_right) / 2)
@@ -97,8 +97,8 @@ class S002xFirstLaunchingFrame(WithMadridInterviewBotState):
             'limit_right': limit_right
         })
 
-        image_url = urljoin(BASE_VIDEO_API_URL,
-                    f'video/{quote(VIDEO_NAME)}/frame/{quote(f"{current_frame}")}/')
+        image_url = urljoin(settings.BASE_VIDEO_API_URL,
+                    f'video/{quote(settings.VIDEO_NAME)}/frame/{quote(f"{current_frame}")}/')
         self.send(
             lyr.Markdown(t('DID_ROCKET_LAUNCH', frame_number=current_frame, image_url=image_url)),
             tgr.InlineKeyboard([
@@ -128,8 +128,8 @@ class S003xIsRocketLaunchedInFrame(WithMadridInterviewBotState):
         current_frame = int((context.get('limit_left') + context.get('limit_right')) / 2)
         context['current_frame'] = current_frame
         
-        image_url = urljoin(BASE_VIDEO_API_URL,
-                    f'video/{quote(VIDEO_NAME)}/frame/{quote(f"{current_frame}")}/')
+        image_url = urljoin(settings.BASE_VIDEO_API_URL,
+                    f'video/{quote(settings.VIDEO_NAME)}/frame/{quote(f"{current_frame}")}/')
         
         self.send(
             lyr.Markdown(t('DID_ROCKET_LAUNCH', frame_number=current_frame, image_url=image_url)),

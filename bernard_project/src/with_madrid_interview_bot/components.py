@@ -5,9 +5,7 @@ from urllib.parse import quote, urljoin
 
 from httpx import Client
 from PIL import Image
-from .store import(
-    BASE_VIDEO_API_URL, VIDEO_NAME
-)
+from bernard.conf import settings
 
 class Size(NamedTuple):
     """
@@ -61,7 +59,7 @@ class FrameX:
     Utility class to access the FrameX API
     """
 
-    BASE_URL = BASE_VIDEO_API_URL
+    BASE_URL = settings.BASE_VIDEO_API_URL
 
     def __init__(self):
         self.client = Client()
@@ -93,7 +91,7 @@ class FrameXBisector:
     Helps managing the display of images from the launch
     """
 
-    BASE_URL = BASE_VIDEO_API_URL
+    BASE_URL = settings.BASE_VIDEO_API_URL
 
     def __init__(self, name):
         self.api = FrameX()
