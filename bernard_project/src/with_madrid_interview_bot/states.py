@@ -1,4 +1,15 @@
 # coding: utf-8
+import time
+import io
+from httpx import Client
+from os import(
+    getenv
+)
+
+from urllib.parse import (
+  quote, urljoin  
+) 
+
 from bernard import (
     layers as lyr,
 )
@@ -20,17 +31,6 @@ from bernard.conf import (
     settings
 )
 
-
-import time
-import io
-from httpx import Client
-from os import(
-    getenv
-)
-
-from urllib.parse import (
-  quote, urljoin  
-) 
 
 from .components import (
     FrameXBisector
