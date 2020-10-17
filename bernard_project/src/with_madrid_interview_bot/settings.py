@@ -137,3 +137,9 @@ USERS_READING_BUBBLE_START = 0.0
 # How many words per minute can your users read? This will compute the delay
 # for each message automatically.
 USERS_READING_SPEED = 400
+
+
+API_BASE = getenv("API_BASE", "https://framex-dev.wadrid.net/api/")
+VIDEO_NAME = getenv(
+    "VIDEO_NAME", "Falcon Heavy Test Flight (Hosted Webcast)-wbSwFU6tY1c"
+)

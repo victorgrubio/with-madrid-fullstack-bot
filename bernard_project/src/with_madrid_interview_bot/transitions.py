@@ -29,22 +29,22 @@ transitions = [
     Tr(
         dest=S003xGuessAgain,
         origin=S002xGuessANumber,
-        factory=Number.builder(is_right=False),
+        factory=Frame.builder(is_right=False),
     ),
     Tr(
         dest=S003xGuessAgain,
         origin=S003xGuessAgain,
-        factory=Number.builder(is_right=False),
+        factory=Frame.builder(is_right=False),
     ),
     Tr(
         dest=S004xCongrats,
         origin=S003xGuessAgain,
-        factory=Number.builder(is_right=True),
+        factory=Frame.builder(is_right=True),
     ),
     Tr(
         dest=S004xCongrats,
         origin=S002xGuessANumber,
-        factory=Number.builder(is_right=True),
+        factory=Frame.builder(is_right=True),
     ),
     Tr(
         dest=S002xGuessANumber,

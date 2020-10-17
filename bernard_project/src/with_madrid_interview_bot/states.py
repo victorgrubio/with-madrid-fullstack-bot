@@ -13,12 +13,34 @@ from bernard.i18n import (
     translate as t,
 )
 from bernard.platforms.telegram import (
-    layers as telegram_layers
+    layers as tgr
 )
 
 from .store import (
-    cs,
+    cs, VIDEO_NAME, DISPLAY_SIZE
 )
+
+import time
+import io
+from PIL import (
+    Image
+)
+
+from .components import (
+    FrameXBisector
+)
+
+def get_current_frame_from_payload(payload):
+    limit_left = int(payload['left'])
+    limit_right = int(payload['right'])
+    return int((limit_left + limit_right) / 2)
+
+def get_image_from_bisector_response(bisector_response):
+    pil_img = Image.open(io.BytesIO(bisector_response))
+    pil_img.thumbnail(DISPLAY_SIZE)
+    buf = pil_img.tobytes()
+    size = pil_img.width, pil_img.height
+
 
 class WithMadridInterviewBotState(BaseState):
     """
@@ -59,7 +81,6 @@ class S001xStart(WithMadridInterviewBotState):
     @page_view('/bot/start')
     async def handle(self) -> None:
         name = await self.request.user.get_friendly_name()
-
         self.send(
             lyr.Text(t('WELCOME', name=name))
         )
@@ -74,8 +95,47 @@ class S002xGuessANumber(WithMadridInterviewBotState):
     @page_view('/bot/guess-a-number')
     @cs.inject()
     async def handle(self, context) -> None:
-        context['number'] = 50
-        self.send(lyr.Text(t.GUESS_A_NUMBER))
+        bisector = FrameXBisector(VIDEO_NAME)
+        limit_left = 0
+        limit_right = bisector.count
+        current_frame = int((limit_left + limit_right) / 2)
+        bisector.index = current_frame
+        context.update({
+            'current_frame': current_frame,
+            'limit_left': limit_left,
+            'limit_right': limit_right
+        })
+        results = [
+            tgr.InlineQueryResultArticle(
+                identifiers={'id': 1},
+                input_stack=lyr.Stack(layers=[tgr.InlineQueryResultArticle]),
+                title="current frame",
+                description="TEST",
+                thumb_url="https://www.clker.com//cliparts/3/m/v/Y/E/V/small-red-apple-hi.png",
+                thumb_width=480,
+                thumb_height=360
+            )
+        ]
+        self.send(
+            lyr.Text(t('DID_ROCKET_LAUNCH', frame_number=current_frame)),
+            tgr.AnswerInlineQuery(
+                results=results,
+                cache_time=0,
+            ))
+        self.send(
+            
+            lyr.Text(t('DID_ROCKET_LAUNCH', frame_number=current_frame)),
+            tgr.InlineKeyboard([
+                [tgr.InlineKeyboardCallbackButton(
+                    text='Yes',
+                    payload={'increaseFrame': True}
+                )],
+                [tgr.InlineKeyboardCallbackButton(
+                    text='No',
+                    payload={'increaseFrame': False}
+                )]
+            ]),
+        )
 
 
 class S003xGuessAgain(WithMadridInterviewBotState):
@@ -88,14 +148,36 @@ class S003xGuessAgain(WithMadridInterviewBotState):
     @page_view('/bot/guess-again')
     @cs.inject()
     async def handle(self, context) -> None:
-        user_number = self.trigger.user_number
-
-        self.send(lyr.Text(t.WRONG))
-
-        if user_number < context['number']:
-            self.send(lyr.Text(t.HIGHER))
-        else:
-            self.send(lyr.Text(t.LOWER))
+        # bisector = FrameXBisector(VIDEO_NAME)
+        current_frame = int((context.get('limit_left') + context.get('limit_right')) / 2)
+        # bisector.index = current_frame
+        context['current_frame'] = current_frame
+        results = [
+            tgr.InlineQueryResultArticle(
+                title="current frame",
+                thumb_url="https://www.clker.com//cliparts/3/m/v/Y/E/V/small-red-apple-hi.png",
+                thumb_width=480,
+                thumb_height=360
+            )
+        ]
+        self.send(
+            tgr.AnswerInlineQuery(
+                results=results,
+                cache_time=0,
+                is_personnal=True,
+            ),
+            lyr.Text(t('DID_ROCKET_LAUNCH', frame_number=current_frame)),
+            tgr.InlineKeyboard([
+                [tgr.InlineKeyboardCallbackButton(
+                    text='Yes',
+                    payload={'increaseFrame': True}
+                )],
+                [tgr.InlineKeyboardCallbackButton(
+                    text='No',
+                    payload={'increaseFrame': False}
+                )]
+            ]),
+        )
 
 
 class S004xCongrats(WithMadridInterviewBotState):
@@ -105,9 +187,11 @@ class S004xCongrats(WithMadridInterviewBotState):
     """
 
     @page_view('/bot/congrats')
-    async def handle(self) -> None:
+    @cs.inject()
+    async def handle(self, context) -> None:
+        current_frame = context.get('current_frame')
         self.send(
-            lyr.Text(t.CONGRATULATIONS),
+            lyr.Text(t('FOUND', frame_number=current_frame)),
             lyr.Text(t.DO_YOU_WANT_AGAIN),
             
         )
