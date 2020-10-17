@@ -5,7 +5,7 @@ services:
     build: 
       context: bernard_project
     env_file:
-      - .env
+      - bernard_project/.env
     volumes:
       - ./bernard_project:/code
     ports:

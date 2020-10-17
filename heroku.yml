@@ -1,0 +1,8 @@
+setup:
+  addons:
+    - plan: heroku-redis
+build:
+  docker:
+    web: bernard_project/Dockerfile
+run:
+  web: ./manage.py run
