@@ -12,15 +12,15 @@ from .store import (
 
 class Frame(BaseTrigger):
     """
-    This trigger will try to interpret what the user sends as a number. If it
-    is a number, then it's compared to the number to guess in the context.
-    The `is_right` parameter allows to say if you want the trigger to activate
-    when the guess is right or not.
+    This trigger will try to interpret what the user sends as a specific action 
+    to increase or decrease the limits of the bisection search.
+    The `is_search_finished` parameter allows to say if you want the trigger to activate
+    when the frame search is finished or not.
     """
 
-    def __init__(self, request, is_right):
+    def __init__(self, request, is_search_finished):
         super().__init__(request)
-        self.is_right = is_right
+        self.is_search_finished = is_search_finished
         self.left = None
         self.right = None
 
@@ -33,25 +33,31 @@ class Frame(BaseTrigger):
             return .0
 
         try:
+            # Get values from context
             self.left = context.get('limit_left')
             self.right = context.get('limit_right')
-            increase_frame = bool(self.request.get_layer(lyr.Postback).payload['increaseFrame'])
-            if increase_frame:
-                self.left = context.get('current_frame')
-                context['limit_left'] = context.get('current_frame')
-            else:
+            # Get the update action from the decrease frame element in payload as boolean
+            decrease_frame = bool(self.request.get_layer(lyr.Postback).payload['decreaseFrame'])
+            if decrease_frame:
+                # Update the right limit of the bisection search
                 self.right = context.get('current_frame')
                 context['limit_right'] = context.get('current_frame')
+            else:
+                # Update the left limit of the bisection search
+                self.left = context.get('current_frame')
+                context['limit_left'] = context.get('current_frame')
             
         except (KeyError, ValueError, TypeError):
             return .0
-        
-        print({'CURRENT': context.get('current_frame'), 'LEFT': self.left, 'RIGHT': self.right})
-        is_right = self.left + 2 >= self.right
-        if is_right and increase_frame:
-            context['current_frame'] += 1
-        elif is_right and not increase_frame:
+
+        # If we sum 2 and surpass the limit, we already now the number
+        is_search_finished = self.left + 2 >= self.right
+        # If the result is secure and next action is decrease, then is previous frame
+        if is_search_finished and decrease_frame: 
             context['current_frame'] -= 1
+        # If the result is secure and next action is increase, then is next frame
+        elif is_search_finished and not decrease_frame:
+            context['current_frame'] += 1
         
 
-        return 1. if is_right == self.is_right else .0
+        return 1. if is_search_finished == self.is_search_finished else .0

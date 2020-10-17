@@ -5,10 +5,9 @@ from urllib.parse import quote, urljoin
 
 from httpx import Client
 from PIL import Image
-from .store import (
-    API_BASE, VIDEO_NAME
+from .store import(
+    BASE_VIDEO_API_URL, VIDEO_NAME
 )
-
 
 class Size(NamedTuple):
     """
@@ -56,21 +55,13 @@ class Frame:
         self.data = data
         self.image = None
 
-    def blit(self, disp):
-        if not self.image:
-            pil_img = Image.open(io.BytesIO(self.data))
-            pil_img.thumbnail(DISPLAY_SIZE)
-            buf = pil_img.tobytes()
-            size = pil_img.width, pil_img.height
-            self.image = pygame.image.frombuffer(buf, size, "RGB")
-
 
 class FrameX:
     """
     Utility class to access the FrameX API
     """
 
-    BASE_URL = API_BASE
+    BASE_URL = BASE_VIDEO_API_URL
 
     def __init__(self):
         self.client = Client()
@@ -102,7 +93,7 @@ class FrameXBisector:
     Helps managing the display of images from the launch
     """
 
-    BASE_URL = API_BASE
+    BASE_URL = BASE_VIDEO_API_URL
 
     def __init__(self, name):
         self.api = FrameX()
@@ -127,23 +118,3 @@ class FrameXBisector:
     @property
     def count(self):
         return self.video.frames
-
-    def tester(self, n):
-        """
-        Displays the current candidate to the user and asks them to
-        check if they see wildfire damages.
-        """
-        self.index = n
-        return False
-
-    def bisect(self, context):
-        """
-        Runs a bisection
-        """
-        n = context['current_frame']
-
-        if n < 1:
-            raise ValueError("Cannot bissect an empty array")
-
-        left = context['limits']['left']
-        right = context['limits']['right']

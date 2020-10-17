@@ -139,7 +139,3 @@ USERS_READING_BUBBLE_START = 0.0
 USERS_READING_SPEED = 400
 
 
-API_BASE = getenv("API_BASE", "https://framex-dev.wadrid.net/api/")
-VIDEO_NAME = getenv(
-    "VIDEO_NAME", "Falcon Heavy Test Flight (Hosted Webcast)-wbSwFU6tY1c"
-)

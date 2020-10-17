@@ -17,30 +17,21 @@ from bernard.platforms.telegram import (
 )
 
 from .store import (
-    cs, VIDEO_NAME, DISPLAY_SIZE
+    cs, VIDEO_NAME, BASE_VIDEO_API_URL
 )
 
 import time
 import io
-from PIL import (
-    Image
+from httpx import Client
+from os import(
+    getenv
 )
+
+from urllib.parse import quote, urljoin
 
 from .components import (
     FrameXBisector
 )
-
-def get_current_frame_from_payload(payload):
-    limit_left = int(payload['left'])
-    limit_right = int(payload['right'])
-    return int((limit_left + limit_right) / 2)
-
-def get_image_from_bisector_response(bisector_response):
-    pil_img = Image.open(io.BytesIO(bisector_response))
-    pil_img.thumbnail(DISPLAY_SIZE)
-    buf = pil_img.tobytes()
-    size = pil_img.width, pil_img.height
-
 
 class WithMadridInterviewBotState(BaseState):
     """
@@ -86,95 +77,70 @@ class S001xStart(WithMadridInterviewBotState):
         )
 
 
-class S002xGuessANumber(WithMadridInterviewBotState):
+class S002xFirstLaunchingFrame(WithMadridInterviewBotState):
     """
-    Define the number to guess behind the scenes and tell the user to guess it.
+    Show the middle frame of the video transmission and check
     """
 
     # noinspection PyMethodOverriding
     @page_view('/bot/guess-a-number')
     @cs.inject()
     async def handle(self, context) -> None:
+        
         bisector = FrameXBisector(VIDEO_NAME)
         limit_left = 0
         limit_right = bisector.count
         current_frame = int((limit_left + limit_right) / 2)
-        bisector.index = current_frame
         context.update({
             'current_frame': current_frame,
             'limit_left': limit_left,
             'limit_right': limit_right
         })
-        results = [
-            tgr.InlineQueryResultArticle(
-                identifiers={'id': 1},
-                input_stack=lyr.Stack(layers=[tgr.InlineQueryResultArticle]),
-                title="current frame",
-                description="TEST",
-                thumb_url="https://www.clker.com//cliparts/3/m/v/Y/E/V/small-red-apple-hi.png",
-                thumb_width=480,
-                thumb_height=360
-            )
-        ]
+
+        image_url = urljoin(BASE_VIDEO_API_URL,
+                    f'video/{quote(VIDEO_NAME)}/frame/{quote(f"{current_frame}")}/')
         self.send(
-            lyr.Text(t('DID_ROCKET_LAUNCH', frame_number=current_frame)),
-            tgr.AnswerInlineQuery(
-                results=results,
-                cache_time=0,
-            ))
-        self.send(
-            
-            lyr.Text(t('DID_ROCKET_LAUNCH', frame_number=current_frame)),
+            lyr.Markdown(t('DID_ROCKET_LAUNCH', frame_number=current_frame, image_url=image_url)),
             tgr.InlineKeyboard([
                 [tgr.InlineKeyboardCallbackButton(
                     text='Yes',
-                    payload={'increaseFrame': True}
+                    payload={'decreaseFrame': True}
                 )],
                 [tgr.InlineKeyboardCallbackButton(
                     text='No',
-                    payload={'increaseFrame': False}
+                    payload={'decreaseFrame': False}
                 )]
             ]),
         )
 
 
-class S003xGuessAgain(WithMadridInterviewBotState):
+class S003xIsRocketLaunchedInFrame(WithMadridInterviewBotState):
     """
-    If the user gave a number that is wrong, we give an indication whether that
-    guess is too low or too high.
+    If the search has not finished, we have to keep updating the boundaries
+    and send new images to the user. 
     """
 
     # noinspection PyMethodOverriding
     @page_view('/bot/guess-again')
     @cs.inject()
     async def handle(self, context) -> None:
-        # bisector = FrameXBisector(VIDEO_NAME)
+        # Update the frame
         current_frame = int((context.get('limit_left') + context.get('limit_right')) / 2)
-        # bisector.index = current_frame
         context['current_frame'] = current_frame
-        results = [
-            tgr.InlineQueryResultArticle(
-                title="current frame",
-                thumb_url="https://www.clker.com//cliparts/3/m/v/Y/E/V/small-red-apple-hi.png",
-                thumb_width=480,
-                thumb_height=360
-            )
-        ]
+        
+        image_url = urljoin(BASE_VIDEO_API_URL,
+                    f'video/{quote(VIDEO_NAME)}/frame/{quote(f"{current_frame}")}/')
+        
         self.send(
-            tgr.AnswerInlineQuery(
-                results=results,
-                cache_time=0,
-                is_personnal=True,
-            ),
-            lyr.Text(t('DID_ROCKET_LAUNCH', frame_number=current_frame)),
+            lyr.Markdown(t('DID_ROCKET_LAUNCH', frame_number=current_frame, image_url=image_url)),
             tgr.InlineKeyboard([
                 [tgr.InlineKeyboardCallbackButton(
                     text='Yes',
-                    payload={'increaseFrame': True}
+                    payload={'decreaseFrame': True}
                 )],
                 [tgr.InlineKeyboardCallbackButton(
                     text='No',
-                    payload={'increaseFrame': False}
+                    payload={'decreaseFrame': False}
                 )]
             ]),
         )
@@ -182,8 +148,7 @@ class S003xGuessAgain(WithMadridInterviewBotState):
 
 class S004xCongrats(WithMadridInterviewBotState):
     """
-    Congratulate the user for finding the number and propose to find another
-    one.
+    Congratulate the user for finding the frame where the rocket was launched
     """
 
     @page_view('/bot/congrats')
