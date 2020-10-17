@@ -20,6 +20,7 @@ from bernard.conf import (
     settings
 )
 
+
 import time
 import io
 from httpx import Client
@@ -27,10 +28,16 @@ from os import(
     getenv
 )
 
-from urllib.parse import quote, urljoin
+from urllib.parse import (
+  quote, urljoin  
+) 
 
 from .components import (
     FrameXBisector
+)
+
+from .store import (
+    cs
 )
 
 class WithMadridInterviewBotState(BaseState):
