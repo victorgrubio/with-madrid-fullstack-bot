@@ -8,3 +8,11 @@ workflows:
           dockerfiles: bernard_project/Dockerfile
           context:
             - docker
+      - docker/publish:
+          dockerfile: Dockerfile
+          image: victorgrubio/bernard-bot-with-madrid
+          tag: 'latest,1.0.0'
+          docker-context: bernard_project
+          path: bernard_project
+          context:
+            - docker
