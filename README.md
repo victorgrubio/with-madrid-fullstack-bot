@@ -4,7 +4,7 @@
 ![CircleCI](https://circleci.com/gh/victorgrubio/with-madrid-fullstack-bot.svg?style=svg) 
 ![Build status](https://img.shields.io/circleci/build/gh/victorgrubio/with-madrid-fullstack-bot/main?token=ccf75fe7e2f1925687bae66dc293fe9bfca32eee)
 ![Docker Pulls](https://img.shields.io/docker/pulls/victorgrubio/bernard-bot-with-madrid)
-![GitHub](https://img.shields.io/github/license/victorgrubio/with-madrid-fullstack-bot)
+
 
 
 ## Description
