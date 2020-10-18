@@ -1,0 +1,12 @@
+version: 2.1
+orbs:
+  docker: circleci/docker@1.4.0
+workflows:
+  build-push-heroku-docker:
+    jobs:
+      - docker/hadolint:
+          dockerfiles: bernard_project/Dockerfile
+      - docker/publish:
+          dockerfile: bernard_project/Dockerfile
+          image: victorgrubio/bernard-bot-with-madrid
+          tag: 'latest,1.0.0'

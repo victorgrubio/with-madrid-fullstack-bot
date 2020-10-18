@@ -9,6 +9,6 @@ WRONG,Well... No!
 LOWER,Try something lower
 HIGHER,Try something higher
 FOUND, Found! The rocket launched in frame {frame_number}
-DO_YOU_WANT_AGAIN, Hope you liked it, I was pretty entertaining to make it. If you want to play again just write /play !
+DO_YOU_WANT_AGAIN, Hope you liked it. It was pretty entertaining to make it. If you want to play again just write /play !
 PLAY_AGAIN,Play again
 TEST,The number is {x:number}

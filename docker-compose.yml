@@ -2,6 +2,7 @@ version: '3.7'
 
 services:
   bernard:
+    image: victorgrubio/bernard-bot-with-madrid:1.0.0
     build: 
       context: bernard_project
     env_file:

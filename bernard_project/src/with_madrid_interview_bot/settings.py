@@ -93,7 +93,7 @@ if socket_path:
 else:
     SERVER_BIND = {
         'host': '127.0.0.1',
-        'port': int(getenv('BIND_PORT', '8000')),
+        'port': int(getenv('BIND_PORT', '8666')),
     }
 
 
